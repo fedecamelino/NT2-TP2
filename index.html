@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>TP2 - Camelino</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    </head>
 
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ejemplo 1</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
-
-</head>
-
-
-<div class="container-fluid mt-3" id="app">
-    <input type="text" class="form-control" v-model="criterioDeBusqueda" placeholder="Ingresar un criterio de busqueda...">
-    <br>
-    <div class="card-deck m-0">
-        <div class="row">
-            <div class="col" v-for="persona in personasFiltradas">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">{{getNombreCompleto(persona)}}</h5>
-                        <p class="card-text">dni {{persona.dni}}</p>
-                        <a href="#" class="card-link">{{persona.correo}}</a>
+    <div class="container-fluid mt-3" id="app">
+        <input type="text" class="form-control" v-model="criterioDeBusquedaNombre" placeholder="Ingresar nombre y/o apellido...">
+        <br>
+        <input type="text" class="form-control" v-model="criterioDeBusquedaDNI" placeholder="Ingresar el numero de DNI...">
+        <br>
+        <div class = "alert alert-warning" v-if="mostrarAlerta">
+            <h6> Ingrese al menos 3 caracteres en el filtro actual </h6>
+        </div>
+        <br>
+        <div class="card-deck m-0" v-if="!mostrarAlerta">
+            <div class="row">
+                <div class="col" v-for="persona in personasFiltradasNombre">
+                    <div class="col" v-if="personasFiltradasDNI.includes(persona)">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title"> {{getNombreCompleto(persona)}} </h5>
+                                <p class="card-text"> DNI {{persona.dni}} </p>
+                                <a href="#" class="card-link"> {{persona.correo}} </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-</div>
-
 </html>
 
 <script>
     new Vue({
         el: '#app',
         data: {
-            criterioDeBusqueda: '',
-            //Aquí, en este array es donde tienen que agregar su información
+            criterioDeBusquedaNombre: '',
+            criterioDeBusquedaDNI: '',
             personas:
                 [
                     { nombre: 'Daniel', apellido: 'Sánchez', dni: 20442873, correo: 'danielsanchez68@hotmail.com' },
-                    //Agregar aquí nombre, apellido, dni y correo
                     { nombre: 'Alan',apellido:'Faerverguer',dni:40829735,correo:'faeralan@gmail.com' },
                     { nombre: 'Julián', apellido: 'Brea', dni: 40937404, correo: 'julian.brea@hotmail.com' },
                     { nombre: 'Mauro', apellido: 'Abraham', dni: 37143235, correo: 'maauro.db@gmail.com' },
@@ -53,17 +55,28 @@
                 ]
         },
         computed: {
-            personasFiltradas() {
+            personasFiltradasNombre() {
                 return this.personas.filter((persona) => {
-                    let registroCompleto = `${persona.nombre}${persona.apellido}${persona.dni}${persona.correo}`
-                    return registroCompleto.toLowerCase().includes(this.criterioDeBusqueda.toLowerCase())
+                    let registroNombre = `${persona.nombre}${persona.apellido}`
+                    return registroNombre.toLowerCase().includes(this.criterioDeBusquedaNombre.toLowerCase())
                 });
+            },
+            personasFiltradasDNI() {
+                return this.personasFiltradasNombre.filter((persona) => {
+                    let registroDNI = `${persona.dni}`
+                    return registroDNI.includes(this.criterioDeBusquedaDNI)
+                });
+            },
+            mostrarAlerta() {
+                const cantCaract = 3
+                let alerta = false
+                if (this.criterioDeBusquedaNombre.length>0 && this.criterioDeBusquedaNombre.length<cantCaract) alerta = true
+                if (this.criterioDeBusquedaDNI.length>0 && this.criterioDeBusquedaDNI.length<cantCaract) alerta = true
+                return alerta
             }
         },
         methods: {
-            getNombreCompleto(persona) {
-                return `${persona.nombre} ${persona.apellido}`
-            }
+            getNombreCompleto(persona) { return `${persona.nombre} ${persona.apellido}`}
         }
     });
 </script>
